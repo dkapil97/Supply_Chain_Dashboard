@@ -32,5 +32,11 @@ Built with **Java Spring Boot, PostgreSQL, and React**.
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/supplychain-dashboard.git
+git clone https://github.com/dkapil_97/supplychain-dashboard.git
 cd supplychain-dashboard
+
+### 2. Start MySql and configure in application properties file as supply_chain
+
+### 3. Run Backend using 
+    ./mvnw spring-boot:run
+
