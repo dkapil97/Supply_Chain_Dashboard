@@ -23,12 +23,11 @@ import com.kd.auth.UserServiceImple;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-	private final UserServiceImple userServiceImple;
+//	private final UserServiceImple userServiceImple;
 	private final JwtAuthFilter jwtAuthFilter;
 
 	
-	public SecurityConfig(UserServiceImple userServiceImple, JwtAuthFilter jwtAuthFilter) {
-		this.userServiceImple = userServiceImple;
+	public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
 		this.jwtAuthFilter = jwtAuthFilter;
 	}
 

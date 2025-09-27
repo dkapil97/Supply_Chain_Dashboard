@@ -28,7 +28,7 @@ public class Inventory {
 	private Integer quantity;
 	private String location;
 	private LocalDateTime lastupdated;
-	private int threshold=5;
+	private int threshold;
 	@OneToOne
 	@JoinColumn(name = "product_id")
 	private Product product;
@@ -39,6 +39,6 @@ public class Inventory {
 
 	public Integer getThreshold() {
 		// TODO Auto-generated method stub
-		return null;
+		return threshold;
 	}
 }

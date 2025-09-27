@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class ProductController {
 
 	private final ProductService productService;
-	private final UserService userService;
+	
 	@GetMapping("/")
     public ResponseEntity<List<ProductDTO>> getAllProducts() {
         List<ProductDTO> products = productService.getAllProducts();
