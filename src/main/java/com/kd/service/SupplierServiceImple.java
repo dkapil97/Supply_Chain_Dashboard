@@ -3,6 +3,8 @@ package com.kd.service;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.kd.dto.SupplierDTO;
@@ -18,7 +20,12 @@ public class SupplierServiceImple implements SupplierService {
 
 	private final SupplierRepository supplierRepository;
 	private final ModelMapper modelMapper;
-
+	private final AuditLogService auditLogService;
+	
+	private String getUsername() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return (auth!=null && auth.isAuthenticated())?auth.getName():"SYSTEM";
+	}
 	@Override
 	public List<SupplierDTO> getAllSupplier() {
 		// TODO Auto-generated method stub
@@ -29,6 +36,7 @@ public class SupplierServiceImple implements SupplierService {
 	public SupplierDTO createSupplier(SupplierDTO supplierDTO) {
 		Supplier supplier = convertToEntity(supplierDTO);
 		Supplier supplier2 = supplierRepository.save(supplier);
+		auditLogService.logAction("SUPPLIER", supplier2.getId(), "CREATE", getUsername());
 		return convertDTO(supplier2);
 	}
 
@@ -46,6 +54,7 @@ public class SupplierServiceImple implements SupplierService {
 		existingSupplier.setName(supplierDTO.getName());
 		existingSupplier.setContactEmail(supplierDTO.getContactEmail());
 		Supplier updatedSupplier = supplierRepository.save(existingSupplier);
+		auditLogService.logAction("SUPPLIER", updatedSupplier.getId(), "UPDATE", getUsername());
 		return convertDTO(updatedSupplier);
 	}
 
@@ -55,7 +64,7 @@ public class SupplierServiceImple implements SupplierService {
 		Supplier supplier = supplierRepository.findById(id)
 		.orElseThrow(()->new ResourceNotFoundException("Supplier is not available::"+id));
 		supplierRepository.delete(supplier);
-
+		auditLogService.logAction("SUPPLIER", supplier.getId(), "DELETE", getUsername());
 	}
 
 	// convert SupplierDto to supplier class

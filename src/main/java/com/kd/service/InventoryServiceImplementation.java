@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.kd.dto.InventoryDTO;
@@ -18,8 +20,13 @@ import lombok.RequiredArgsConstructor;
 public class InventoryServiceImplementation implements InventoryService {
 
 	private final InventoryRepository inventoryRepository;
-
 	private final ModelMapper modelMapper;
+	private final AuditLogService auditLogService;
+
+	private String getCurrentUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		return (authentication!=null && authentication.isAuthenticated())?authentication.getName():"SYSTEM";
+	}
 
 	@Override
 	public List<InventoryDTO> getAllInventory() {
@@ -31,6 +38,7 @@ public class InventoryServiceImplementation implements InventoryService {
 	public InventoryDTO createInventory(InventoryDTO inventoryDTO) {
 		Inventory inventory = convertEntity(inventoryDTO);
 		Inventory inventory2 = inventoryRepository.save(inventory);
+		auditLogService.logAction("Inventory", inventory2.getId(), "CREATE", getCurrentUser());
 		return convertDto(inventory2);
 	}
 
@@ -50,7 +58,7 @@ public class InventoryServiceImplementation implements InventoryService {
 		existingInventory.setLocation(inventoryDTO.getLocation());
 		existingInventory.setLastupdated(inventoryDTO.getLastupdated());
 		Inventory updatedInventory = inventoryRepository.save(existingInventory);
-
+		auditLogService.logAction("Inventory", updatedInventory.getId(), "UPDATE", getCurrentUser());
 		return convertDto(updatedInventory);
 	}
 
@@ -59,7 +67,7 @@ public class InventoryServiceImplementation implements InventoryService {
 		Inventory existingInventory = inventoryRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Inventory is not available with::" + id));
 		inventoryRepository.delete(existingInventory);
-
+		auditLogService.logAction("Inventory", existingInventory.getId(), "UPDATE", getCurrentUser());
 	}
 
 	// helper

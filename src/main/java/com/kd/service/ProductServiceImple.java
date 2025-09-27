@@ -4,8 +4,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import com.kd.dto.ProductDTO;
 import com.kd.exception.ResourceNotFoundException;
 import com.kd.model.Product;
@@ -19,7 +20,12 @@ public class ProductServiceImple implements ProductService {
 
 	private final ProductRepository productRepository;
 	private final ModelMapper modelMapper;
-
+	private final AuditLogService auditLogService;
+	
+	private String getCurrentUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		return (authentication!=null && authentication.isAuthenticated())?authentication.getName():"SYSTEM";
+	}
 	@Override
 	public List<ProductDTO> getAllProducts() {
 
@@ -34,6 +40,7 @@ public class ProductServiceImple implements ProductService {
 	public ProductDTO createProduct(ProductDTO productDTO) {
 		Product product = convertToEntity(productDTO);
 		Product save = productRepository.save(product);
+		auditLogService.logAction("Product", save.getId(), "CREATE",getCurrentUser());
 		return convertDTO(product);
 	}
 
@@ -42,7 +49,7 @@ public class ProductServiceImple implements ProductService {
 	@Override
 	public ProductDTO getProductById(Long id) {
 		Product product = productRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Product not found with:"+id));
-		
+		auditLogService.logAction("Product", id, "FETCH", getCurrentUser());
 		return convertDTO(product);
 	}
 
@@ -56,7 +63,7 @@ public class ProductServiceImple implements ProductService {
 		existingProduct.setPrice(productDTO.getPrice());
 		
 		Product updated = productRepository.save(existingProduct);
-		
+		auditLogService.logAction("PRODUCT", id, "UPDATED", getCurrentUser());
 		return convertDTO(updated);
 	}
 
@@ -65,6 +72,7 @@ public class ProductServiceImple implements ProductService {
 		// TODO Auto-generated method stub
 		Product existing = productRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Product not found with:"+id));
 		productRepository.delete(existing);
+		auditLogService.logAction("PRODUCT", id, "DELETE", getCurrentUser());
 	}
 
 	// Helper class 

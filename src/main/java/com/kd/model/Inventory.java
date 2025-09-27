@@ -28,7 +28,7 @@ public class Inventory {
 	private Integer quantity;
 	private String location;
 	private LocalDateTime lastupdated;
-	
+	private int threshold=5;
 	@OneToOne
 	@JoinColumn(name = "product_id")
 	private Product product;
@@ -36,4 +36,9 @@ public class Inventory {
 	public boolean isLowStock() {
         return quantity < 10; // example threshold
     }
+
+	public Integer getThreshold() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
